@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MovieFlix | Premium Streaming</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #e50914;
+            --primary-hover: #ff0a16;
+            --bg-dark: #0f0f0f;
+            --card-bg: #1a1a1a;
+            --text-main: #ffffff;
+            --text-dim: #b3b3b3;
+            --glass: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* --- NAVBAR --- */
+        .navbar {
+            background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
+            padding: 20px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            color: var(--primary);
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(229, 9, 20, 0.3);
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        .search {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 20px;
+            color: white;
+            width: 250px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .search:focus {
+            width: 350px;
+            background: rgba(255, 255, 255, 0.2);
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(229, 9, 20, 0.2);
+        }
+
+        /* --- FILTERS --- */
+        .filters {
+            padding: 30px 5% 10px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: var(--glass);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 10px 22px;
+            border-radius: 30px;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .filter-btn:hover {
+            background: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(229, 9, 20, 0.4);
+        }
+
+        /* --- MOVIE GRID --- */
+        .container {
+            padding: 20px 5%;
+        }
+
+        .movies {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 30px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* Simulation d'une image si elle manque */
+        .card-img-placeholder {
+            height: 300px;
+            background: linear-gradient(45deg, #1a1a1a, #333);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        .card:hover {
+            transform: scale(1.05) translateY(-10px);
+            z-index: 10;
+            box-shadow: 0 20px 30px rgba(0,0,0,0.5);
+            border-color: rgba(255,255,255,0.2);
+        }
+
+        .card-info {
+            padding: 15px;
+            background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.7) 100%);
+        }
+
+        .card h3 {
+            margin: 0 0 8px 0;
+            font-size: 1.1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card .genre {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+        }
+
+        .meta-data {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .rating {
+            color: #ffcc00;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .box-office {
+            font-size: 0.75rem;
+            background: rgba(255,255,255,0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="logo">Movie<span>Flix</span></div>
+    <div class="search-container">
+        <input id="search" class="search" placeholder="Rechercher un film, un genre...">
+    </div>
+</div>
+
+<div class="filters">
+    <button class="filter-btn" onclick="sortAlphabet()">A-Z</button>
+    <button class="filter-btn" onclick="sortRating()">⭐ Mieux notés</button>
+    <button class="filter-btn" onclick="sortBoxOffice()">💰 Box Office</button>
+</div>
+
+<div class="container">
+    <div class="movies" id="movies">
+        {% for movie in movies %}
+        <div class="card"
+             data-name="{{ movie.name }}"
+             data-rating="{{ movie.rating }}"
+             data-box="{{ movie.box_office }}">
+
+            <a href="/movie/{{ loop.index0 }}" style="color:inherit; text-decoration:none">
+                <div class="card-img-placeholder">🎬</div>
+                <div class="card-info">
+                    <h3>{{ movie.name }}</h3>
+                    <div class="genre">{{ movie.genre }}</div>
+                    <div class="meta-data">
+                        <span class="rating">★ {{ movie.rating }}</span>
+                        <span class="box-office">${{ movie.box_office }}M</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+
+        <div class="card" data-name="Inception" data-rating="8.8" data-box="836">
+            <div class="card-img-placeholder">🌀</div>
+            <div class="card-info">
+                <h3>Inception</h3>
+                <div class="genre">Sci-Fi • Action</div>
+                <div class="meta-data">
+                    <span class="rating">★ 8.8</span>
+                    <span class="box-office">$836M</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+/* Le JavaScript reste identique en logique mais gère mieux l'affichage */
+
+const container = document.getElementById("movies");
+const search = document.getElementById("search");
+
+search.addEventListener("keyup", function(){
+    let filter = search.value.toLowerCase();
+    let cards = document.querySelectorAll(".card");
+
+    cards.forEach(card => {
+        let text = card.innerText.toLowerCase();
+        if(text.includes(filter)){
+            card.style.display = "block";
+            card.style.opacity = "1";
+        } else {
+            card.style.display = "none";
+        }
+    });
+});
+
+function sortAlphabet(){
+    let cards = Array.from(container.children);
+    cards.sort((a,b)=> a.dataset.name.localeCompare(b.dataset.name));
+    render(cards);
+}
+
+function sortRating(){
+    let cards = Array.from(container.children);
+    cards.sort((a,b)=> b.dataset.rating - a.dataset.rating);
+    render(cards);
+}
+
+function sortBoxOffice(){
+    let cards = Array.from(container.children);
+    cards.sort((a,b)=> b.dataset.box - a.dataset.box);
+    render(cards);
+}
+
+function render(sortedCards){
+    container.innerHTML = "";
+    sortedCards.forEach(card => {
+        card.style.animation = "fadeIn 0.5s ease";
+        container.appendChild(card);
+    });
+}
+</script>
+
+</body>
+</html>
